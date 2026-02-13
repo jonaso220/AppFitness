@@ -86,8 +86,8 @@ function ExerciseCard({
         <Text style={styles.setsHeaderText}>Serie</Text>
         <Text style={styles.setsHeaderText}>Reps</Text>
         <Text style={styles.setsHeaderText}>Kg</Text>
-        <Text style={[styles.setsHeaderText, { width: 32, textAlign: 'center' }]} />
-        <Text style={[styles.setsHeaderText, { width: 24 }]} />
+        <View style={{ width: 32, marginLeft: spacing.sm }} />
+        <View style={{ width: 24, marginLeft: 4 }} />
       </View>
 
       {exercise.sets.map((set, setIndex) => (
@@ -737,6 +737,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: '600',
     textTransform: 'uppercase',
+    textAlign: 'center',
   },
   setRow: {
     flexDirection: 'row',
@@ -755,6 +756,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,
+    textAlign: 'center',
   },
   setInputContainer: {
     flex: 1,
