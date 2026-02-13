@@ -206,7 +206,7 @@ export default function RestScreen() {
           </TouchableOpacity>
         )}
 
-        <View style={styles.resetButton} />
+        <View style={[styles.resetButton, { backgroundColor: 'transparent' }]} />
       </View>
 
       {/* Add time buttons */}
