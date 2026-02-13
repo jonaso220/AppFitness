@@ -248,7 +248,7 @@ export default function TrainScreen({ navigation, route }) {
     setEditingName(false);
   };
 
-  const saveWorkout = () => {
+  const saveWorkout = async () => {
     const durationMs = Date.now() - (startTimeRef.current || Date.now());
     const duration = Math.max(1, Math.round(durationMs / 60000));
     const totalSetsCount = exercises.reduce((a, e) => a + e.sets.length, 0);
@@ -277,12 +277,16 @@ export default function TrainScreen({ navigation, route }) {
       })),
     };
 
-    addWorkout(entry);
-    setWorkoutActive(false);
-    setExercises([]);
-    setWorkoutName('');
-    setTemplateName(null);
-    startTimeRef.current = null;
+    try {
+      await addWorkout(entry);
+      setWorkoutActive(false);
+      setExercises([]);
+      setWorkoutName('');
+      setTemplateName(null);
+      startTimeRef.current = null;
+    } catch {
+      Alert.alert('Error', 'No se pudo guardar el entrenamiento. Inténtalo de nuevo.');
+    }
   };
 
   const handleFinishWorkout = () => {
