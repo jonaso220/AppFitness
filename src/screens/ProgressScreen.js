@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
-  Alert,
   Keyboard,
   Dimensions,
 } from 'react-native';
@@ -16,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, spacing, borderRadius, fontSize } from '../theme';
 import { useProgress } from '../context/ProgressContext';
+import { webAlert } from '../utils/alert';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CHART_HEIGHT = 160;
@@ -117,7 +117,7 @@ function PhotoItem({ uri, date, onDelete }) {
       <View style={styles.photoOverlay}>
         <Text style={styles.photoDate}>{formatShortDate(date)}</Text>
         <TouchableOpacity
-          onPress={() => Alert.alert('Eliminar foto', '¿Seguro?', [
+          onPress={() => webAlert('Eliminar foto', '¿Seguro?', [
             { text: 'Cancelar', style: 'cancel' },
             { text: 'Eliminar', style: 'destructive', onPress: onDelete },
           ])}
@@ -170,7 +170,7 @@ function EntryRow({ entry, onDelete }) {
         )}
       </View>
       <TouchableOpacity
-        onPress={() => Alert.alert('Eliminar registro', '¿Eliminar este registro de progreso?', [
+        onPress={() => webAlert('Eliminar registro', '¿Eliminar este registro de progreso?', [
           { text: 'Cancelar', style: 'cancel' },
           { text: 'Eliminar', style: 'destructive', onPress: () => onDelete(entry.id) },
         ])}
@@ -229,7 +229,7 @@ export default function ProgressScreen({ navigation }) {
   const handleTakePhoto = useCallback(async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permiso necesario', 'Necesitamos acceso a la cámara para tomar fotos.');
+      webAlert('Permiso necesario', 'Necesitamos acceso a la cámara para tomar fotos.');
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -247,7 +247,7 @@ export default function ProgressScreen({ navigation }) {
     const hi = parseFloat(hip) || 0;
 
     if (w === 0 && wa === 0 && ch === 0 && hi === 0 && pendingPhotos.length === 0) {
-      Alert.alert('Sin datos', 'Introduce al menos un valor o añade una foto.');
+      webAlert('Sin datos', 'Introduce al menos un valor o añade una foto.');
       return;
     }
 
@@ -269,9 +269,9 @@ export default function ProgressScreen({ navigation }) {
       setHip('');
       setPendingPhotos([]);
       Keyboard.dismiss();
-      Alert.alert('Guardado', 'Tu registro de progreso se ha guardado correctamente.');
+      webAlert('Guardado', 'Tu registro de progreso se ha guardado correctamente.');
     } catch {
-      Alert.alert('Error', 'No se pudo guardar el registro. Inténtalo de nuevo.');
+      webAlert('Error', 'No se pudo guardar el registro. Inténtalo de nuevo.');
     }
   }, [weight, waist, chest, hip, pendingPhotos, addEntry]);
 

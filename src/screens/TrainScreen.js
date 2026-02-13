@@ -6,13 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, fontSize } from '../theme';
 import { useWorkoutHistory } from '../context/WorkoutContext';
 import { exercises as exerciseLibrary, workoutTemplates } from '../data/mockData';
+import { webAlert } from '../utils/alert';
 
 function SetRow({ set, onToggle, onUpdateReps, onUpdateWeight, onRemove }) {
   return (
@@ -285,7 +285,7 @@ export default function TrainScreen({ navigation, route }) {
       setTemplateName(null);
       startTimeRef.current = null;
     } catch {
-      Alert.alert('Error', 'No se pudo guardar el entrenamiento. Inténtalo de nuevo.');
+      webAlert('Error', 'No se pudo guardar el entrenamiento. Inténtalo de nuevo.');
     }
   };
 
@@ -294,7 +294,7 @@ export default function TrainScreen({ navigation, route }) {
       setWorkoutActive(false);
       return;
     }
-    Alert.alert(
+    webAlert(
       'Finalizar entrenamiento',
       '¿Quieres finalizar este entrenamiento?',
       [
@@ -305,7 +305,7 @@ export default function TrainScreen({ navigation, route }) {
   };
 
   const handleCancelWorkout = () => {
-    Alert.alert(
+    webAlert(
       'Descartar entrenamiento',
       '¿Seguro que quieres descartar este entrenamiento? Se perderán los datos.',
       [
@@ -399,7 +399,7 @@ export default function TrainScreen({ navigation, route }) {
   };
 
   const handleRemoveExercise = (exerciseIndex) => {
-    Alert.alert(
+    webAlert(
       'Eliminar ejercicio',
       `¿Eliminar "${exercises[exerciseIndex].name}" del entrenamiento?`,
       [
