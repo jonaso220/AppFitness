@@ -11,12 +11,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Puedes encontrarlos en: Firebase Console > Configuracion del proyecto > Tus apps > Firebase SDK snippet
 // ============================================================
 const firebaseConfig = {
-  apiKey: 'TU_API_KEY',
-  authDomain: 'TU_PROYECTO.firebaseapp.com',
-  projectId: 'TU_PROJECT_ID',
-  storageBucket: 'TU_PROYECTO.firebasestorage.app',
-  messagingSenderId: 'TU_SENDER_ID',
-  appId: 'TU_APP_ID',
+  apiKey: 'AIzaSyAiZIa7881YCK0V1jn67N4eb_DXdL99Xx8',
+  authDomain: 'appfitness-c7daa.firebaseapp.com',
+  projectId: 'appfitness-c7daa',
+  storageBucket: 'appfitness-c7daa.firebasestorage.app',
+  messagingSenderId: '573447119261',
+  appId: '1:573447119261:web:294237b4d4ddedf881cf74',
+  measurementId: 'G-XM5BSZLEME',
 };
 
 const app = initializeApp(firebaseConfig);
