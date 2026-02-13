@@ -5,6 +5,14 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Proxy Firebase auth handler through our domain to avoid
+# sessionStorage issues in in-app browsers (WhatsApp, Instagram, etc.)
+[[redirects]]
+  from = "/__/auth/*"
+  to = "https://appfitness-c7daa.firebaseapp.com/__/auth/:splat"
+  status = 200
+  force = true
+
 # SPA redirect: all routes serve index.html for client-side routing
 [[redirects]]
   from = "/*"

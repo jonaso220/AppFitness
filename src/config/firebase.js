@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // ============================================================
 const firebaseConfig = {
   apiKey: 'AIzaSyAiZIa7881YCK0V1jn67N4eb_DXdL99Xx8',
-  authDomain: 'appfitness-c7daa.firebaseapp.com',
+  authDomain: 'appfitnessjm.netlify.app',
   projectId: 'appfitness-c7daa',
   storageBucket: 'appfitness-c7daa.firebasestorage.app',
   messagingSenderId: '573447119261',
