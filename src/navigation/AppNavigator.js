@@ -1,10 +1,13 @@
 import React from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fontSize } from '../theme';
+import { useAuth } from '../context/AuthContext';
 
+import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TrainScreen from '../screens/TrainScreen';
 import ExercisePickerScreen from '../screens/ExercisePickerScreen';
@@ -107,10 +110,11 @@ const tabIcons = {
   EjerciciosTab: { focused: 'list', unfocused: 'list-outline' },
 };
 
-export default function AppNavigator() {
+const RootStack = createNativeStackNavigator();
+
+function MainTabs() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
+    <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             const icons = tabIcons[route.name];
@@ -164,6 +168,38 @@ export default function AppNavigator() {
           options={{ title: 'Ejercicios', headerShown: false }}
         />
       </Tab.Navigator>
+  );
+}
+
+export default function AppNavigator() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={loadingStyles.container}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        {user ? (
+          <RootStack.Screen name="Main" component={MainTabs} />
+        ) : (
+          <RootStack.Screen name="Login" component={LoginScreen} />
+        )}
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }
+
+const loadingStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+});
