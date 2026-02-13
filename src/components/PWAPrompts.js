@@ -10,16 +10,22 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, fontSize } from '../theme';
 
+// Detect if already running as installed PWA
+function isStandalone() {
+  if (Platform.OS !== 'web') return true;
+  return (
+    window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches
+  );
+}
+
 // Detect iOS Safari (not standalone = not yet installed)
 function isIOSSafari() {
   if (Platform.OS !== 'web') return false;
   const ua = navigator.userAgent || '';
   const isIOS = /iPhone|iPad|iPod/.test(ua);
   const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|OPiOS|EdgiOS/.test(ua);
-  const isStandalone =
-    window.navigator.standalone === true ||
-    window.matchMedia('(display-mode: standalone)').matches;
-  return isIOS && isSafari && !isStandalone;
+  return isIOS && isSafari && !isStandalone();
 }
 
 // ---------- iOS Install Banner ----------
@@ -81,6 +87,85 @@ function InstallBanner() {
       </View>
       {/* Arrow pointing down to share button */}
       <View style={styles.bannerArrow} />
+    </Animated.View>
+  );
+}
+
+// ---------- Chrome/Android Install Banner (beforeinstallprompt) ----------
+function ChromeInstallBanner() {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(200)).current;
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || isStandalone()) return;
+
+    // Don't show if dismissed recently (24h)
+    const dismissed = localStorage.getItem('pwa_chrome_install_dismissed');
+    if (dismissed && Date.now() - Number(dismissed) < 86400000) return;
+
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setVisible(true);
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 60,
+        friction: 12,
+      }).start();
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+    if (outcome === 'accepted') {
+      dismiss(false);
+    }
+  };
+
+  const dismiss = (save = true) => {
+    if (save) {
+      localStorage.setItem('pwa_chrome_install_dismissed', String(Date.now()));
+    }
+    Animated.timing(slideAnim, {
+      toValue: 200,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => setVisible(false));
+  };
+
+  if (!visible) return null;
+
+  return (
+    <Animated.View
+      style={[styles.banner, { transform: [{ translateY: slideAnim }] }]}
+    >
+      <View style={styles.bannerContent}>
+        <View style={styles.bannerIcon}>
+          <Ionicons name="download-outline" size={24} color={colors.primary} />
+        </View>
+        <View style={styles.bannerTextContainer}>
+          <Text style={styles.bannerTitle}>Instalar AppFitness</Text>
+          <Text style={styles.bannerDesc}>
+            Añade la app a tu pantalla de inicio para acceso rápido
+          </Text>
+        </View>
+        <TouchableOpacity onPress={() => dismiss(true)} style={styles.bannerClose}>
+          <Ionicons name="close" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity onPress={handleInstall} style={styles.installButton}>
+        <Ionicons name="add-circle-outline" size={18} color={colors.white} />
+        <Text style={styles.installButtonText}>Instalar</Text>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
@@ -191,6 +276,7 @@ export default function PWAPrompts() {
     <>
       <UpdateBanner />
       <InstallBanner />
+      <ChromeInstallBanner />
     </>
   );
 }
@@ -257,6 +343,23 @@ const styles = StyleSheet.create({
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
     borderTopColor: colors.surface,
+  },
+  installButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.full,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.sm,
+    alignSelf: 'center',
+    gap: spacing.xs,
+  },
+  installButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '700',
+    color: colors.white,
   },
   // Update banner (top)
   updateBanner: {
