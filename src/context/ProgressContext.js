@@ -1,41 +1,70 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../config/firebase';
+import { useAuth } from './AuthContext';
 
-const STORAGE_KEY = '@appfitness_progress';
 const ProgressContext = createContext();
 
 export function ProgressProvider({ children }) {
+  const { user } = useAuth();
   const [entries, setEntries] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
-      .then((json) => {
-        if (json) setEntries(JSON.parse(json));
-      })
-      .catch(() => {})
-      .finally(() => setLoaded(true));
-  }, []);
+    if (!user) {
+      setEntries([]);
+      setLoaded(true);
+      return;
+    }
 
-  const persist = useCallback((data) => {
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data)).catch(() => {});
-  }, []);
+    setLoaded(false);
 
-  const addEntry = useCallback((entry) => {
-    setEntries((prev) => {
-      const next = [entry, ...prev];
-      persist(next);
-      return next;
+    const q = query(
+      collection(db, 'users', user.uid, 'progress'),
+      orderBy('createdAt', 'desc'),
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+      setEntries(data);
+      setLoaded(true);
     });
-  }, [persist]);
 
-  const deleteEntry = useCallback((id) => {
-    setEntries((prev) => {
-      const next = prev.filter((e) => e.id !== id);
-      persist(next);
-      return next;
-    });
-  }, [persist]);
+    return unsubscribe;
+  }, [user]);
+
+  const addEntry = useCallback(
+    async (entry) => {
+      if (!user) return;
+      const { id, photos, ...data } = entry;
+      await addDoc(collection(db, 'users', user.uid, 'progress'), {
+        ...data,
+        photos: photos || [],
+        createdAt: serverTimestamp(),
+      });
+    },
+    [user],
+  );
+
+  const deleteEntry = useCallback(
+    async (id) => {
+      if (!user) return;
+      await deleteDoc(doc(db, 'users', user.uid, 'progress', id));
+    },
+    [user],
+  );
 
   return (
     <ProgressContext.Provider value={{ entries, loaded, addEntry, deleteEntry }}>

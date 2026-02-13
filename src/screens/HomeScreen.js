@@ -9,6 +9,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, borderRadius, fontSize } from '../theme';
+import { useAuth } from '../context/AuthContext';
 import { useWorkoutHistory } from '../context/WorkoutContext';
 import { useProgress } from '../context/ProgressContext';
 import { exercises as exerciseLibrary } from '../data/mockData';
@@ -89,6 +90,7 @@ function calculateStreak(history) {
 
 export default function HomeScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const { user, logout } = useAuth();
   const { history } = useWorkoutHistory();
   const { entries: progressEntries } = useProgress();
   const goToTab = (tab) => navigation.getParent()?.navigate(tab);
@@ -132,13 +134,15 @@ export default function HomeScreen({ navigation }) {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.sm }]}
     >
       <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>{getGreeting()}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.greeting}>
+            {getGreeting()}{user?.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}
+          </Text>
           <Text style={styles.title}>Tu resumen</Text>
         </View>
-        <View style={styles.avatarPlaceholder}>
-          <Ionicons name="person" size={24} color={colors.textSecondary} />
-        </View>
+        <TouchableOpacity style={styles.avatarPlaceholder} onPress={logout} activeOpacity={0.7}>
+          <Ionicons name="log-out-outline" size={22} color={colors.textSecondary} />
+        </TouchableOpacity>
       </View>
 
       {/* Stats grid */}
