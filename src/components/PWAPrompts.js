@@ -126,9 +126,7 @@ function ChromeInstallBanner() {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     setDeferredPrompt(null);
-    if (outcome === 'accepted') {
-      dismiss(false);
-    }
+    dismiss(outcome !== 'accepted');
   };
 
   const dismiss = (save = true) => {
