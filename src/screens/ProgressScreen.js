@@ -240,7 +240,7 @@ export default function ProgressScreen({ navigation }) {
     }
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     const w = parseFloat(weight) || 0;
     const wa = parseFloat(waist) || 0;
     const ch = parseFloat(chest) || 0;
@@ -261,14 +261,18 @@ export default function ProgressScreen({ navigation }) {
       photos: pendingPhotos,
     };
 
-    addEntry(entry);
-    setWeight('');
-    setWaist('');
-    setChest('');
-    setHip('');
-    setPendingPhotos([]);
-    Keyboard.dismiss();
-    Alert.alert('Guardado', 'Tu registro de progreso se ha guardado correctamente.');
+    try {
+      await addEntry(entry);
+      setWeight('');
+      setWaist('');
+      setChest('');
+      setHip('');
+      setPendingPhotos([]);
+      Keyboard.dismiss();
+      Alert.alert('Guardado', 'Tu registro de progreso se ha guardado correctamente.');
+    } catch {
+      Alert.alert('Error', 'No se pudo guardar el registro. Inténtalo de nuevo.');
+    }
   }, [weight, waist, chest, hip, pendingPhotos, addEntry]);
 
   const latestEntry = entries.length > 0 ? entries[0] : null;
